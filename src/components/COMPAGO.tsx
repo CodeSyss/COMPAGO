@@ -1042,8 +1042,7 @@ const COMPAGO = () => {
               { id: 'dashboard', label: 'Inicio', icon: Home },
               { id: 'sendPayment', label: 'Enviar', icon: Send },
               { id: 'receivePayment', label: 'Recibir', icon: ArrowDownLeft },
-              { id: 'history', label: 'Historial', icon: History },
-              { id: 'profile', label: 'Perfil', icon: User }
+              { id: 'history', label: 'Historial', icon: History }
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
