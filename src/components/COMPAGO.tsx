@@ -20,6 +20,15 @@ import {
   X
 } from 'lucide-react';
 
+// Helper function to format currency correctly
+const formatVesCurrency = (amount: number) => {
+  const numberFormatter = new Intl.NumberFormat('es-VE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `Bs. ${numberFormatter.format(amount)}`;
+};
+
 // Componente de Modal genérico
 const Modal = ({ show, onClose, children, title, onConfirm, confirmText = "Confirmar" }) => {
   if (!show) return null;
@@ -77,9 +86,9 @@ const Notification = ({ message, type, onClose }) => {
 
 // Datos mock para simulación
 const mockBalances = [
-  { bank: 'Banesco', balance: 1250.75, currency: 'USD', icon: '🏦', color: 'from-blue-500 to-blue-600' },
-  { bank: 'Mercantil', balance: 890.20, currency: 'USD', icon: '💰', color: 'from-green-500 to-green-600' },
-  { bank: 'Provincial', balance: 2100.50, currency: 'USD', icon: '💳', color: 'from-purple-500 to-purple-600' },
+  { bank: 'Banesco', balance: 525.75, currency: 'VES', icon: '🏦', color: 'from-blue-500 to-blue-600' },
+  { bank: 'Mercantil', balance: 890.20, currency: 'VES', icon: '💰', color: 'from-green-500 to-green-600' },
+  { bank: 'Provincial', balance: 100.50, currency: 'VES', icon: '💳', color: 'from-purple-500 to-purple-600' },
 ];
 
 const mockTransactions = [
@@ -186,19 +195,19 @@ const Dashboard = ({ onNavigate, balances, transactions }) => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">Hola Carlos</h2>
             <div className="flex space-x-3">
-              <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+              <button onClick={() => onNavigate('profile')} className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
                 <User className="w-5 h-5" />
               </button>
-              <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+              {/* <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
                 <Bell className="w-5 h-5" />
-              </button>
+              </button> */}
             </div>
           </div>
           
           <p className="text-lg text-primary-foreground/80 mb-2">Tu saldo total</p>
           <div className="flex items-center">
             <p className="text-4xl font-extrabold mr-3">
-              {showBalance ? totalBalance.toLocaleString('es-VE', { style: 'currency', currency: 'USD' }) : '•••••'}
+              {showBalance ? formatVesCurrency(totalBalance) : '•••••'}
             </p>
             <button 
               onClick={() => setShowBalance(!showBalance)} 
@@ -251,8 +260,8 @@ const Dashboard = ({ onNavigate, balances, transactions }) => {
                     <p className="text-sm text-muted-foreground">Cuenta corriente</p>
                   </div>
                 </div>
-                <p className="text-xl font-bold text-primary">
-                  {bank.balance.toLocaleString('es-VE', { style: 'currency', currency: bank.currency })}
+                <p className="text-xl font-normal text-foreground">
+                  {formatVesCurrency(bank.balance)}
                 </p>
               </div>
             </div>
@@ -292,8 +301,8 @@ const Dashboard = ({ onNavigate, balances, transactions }) => {
                     <p className="text-sm text-muted-foreground">{tx.date} • {tx.method}</p>
                   </div>
                 </div>
-                <p className={`font-bold ${tx.type === 'Envío' ? 'text-destructive' : 'text-success'}`}>
-                  {tx.type === 'Envío' ? '-' : '+'}{tx.amount.toLocaleString('es-VE', { style: 'currency', currency: 'USD' })}
+                <p className="font-normal text-foreground">
+                  {tx.type === 'Envío' ? '-' : '+'}{formatVesCurrency(tx.amount)}
                 </p>
               </li>
             ))}
@@ -537,7 +546,7 @@ const SendPaymentScreen = ({ onNavigate, onSendPayment }) => {
           
           <div>
             <label htmlFor="amount" className="block text-foreground text-sm font-semibold mb-2">
-              Monto (USD):
+              Monto (VES):
             </label>
             <input
               type="number"
@@ -545,7 +554,7 @@ const SendPaymentScreen = ({ onNavigate, onSendPayment }) => {
               className="w-full p-3 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 bg-background"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="Ej: 50.00"
+              placeholder="Ej: 50000.00"
               step="0.01"
               readOnly={activeTab === 'nfc' || activeTab === 'qr'}
             />
@@ -588,7 +597,7 @@ const SendPaymentScreen = ({ onNavigate, onSendPayment }) => {
               <p><span className="font-semibold">Teléfono:</span> {paymentDetails.phone}</p>
               <p><span className="font-semibold">Identificación:</span> {paymentDetails.id || 'N/A'}</p>
               <p><span className="font-semibold">Banco:</span> {paymentDetails.bank}</p>
-              <p><span className="font-semibold">Monto:</span> <span className="text-primary font-bold">{paymentDetails.amount.toLocaleString('es-VE', { style: 'currency', currency: 'USD' })}</span></p>
+              <p><span className="font-semibold">Monto:</span> <span className="font-normal text-foreground">{formatVesCurrency(paymentDetails.amount)}</span></p>
               <p><span className="font-semibold">Concepto:</span> {paymentDetails.concept || 'N/A'}</p>
             </div>
             <p className="text-sm text-muted-foreground flex items-center">
@@ -673,7 +682,7 @@ const ReceivePaymentScreen = ({ onNavigate, onReceivePayment }) => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="receiveAmount" className="block text-foreground text-sm font-semibold mb-2">
-                  Monto a Cobrar (USD):
+                  Monto a Cobrar (VES):
                 </label>
                 <input
                   type="number"
@@ -716,8 +725,8 @@ const ReceivePaymentScreen = ({ onNavigate, onReceivePayment }) => {
             
             <div>
               <h3 className="text-xl font-semibold text-card-foreground mb-2">Esperando Pago</h3>
-              <p className="text-3xl font-bold text-success mb-2">
-                {parseFloat(amount).toLocaleString('es-VE', { style: 'currency', currency: 'USD' })}
+              <p className="text-3xl font-normal text-foreground mb-2">
+                {formatVesCurrency(parseFloat(amount))}
               </p>
               <p className="text-muted-foreground">por NFC o escaneo de QR</p>
             </div>
@@ -828,8 +837,8 @@ const TransactionHistoryScreen = ({ onNavigate, transactions }) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`font-bold text-lg ${tx.type === 'Envío' ? 'text-destructive' : 'text-success'}`}>
-                    {tx.type === 'Envío' ? '-' : '+'}{tx.amount.toLocaleString('es-VE', { style: 'currency', currency: 'USD' })}
+                  <p className="font-normal text-foreground">
+                    {tx.type === 'Envío' ? '-' : '+'}{formatVesCurrency(tx.amount)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {tx.type === 'Envío' ? 'Enviado' : 'Recibido'}
@@ -844,6 +853,68 @@ const TransactionHistoryScreen = ({ onNavigate, transactions }) => {
   );
 };
 
+// Componente de Perfil
+const ProfileScreen = ({ onNavigate, onLogout }) => {
+  const user = {
+    name: 'Carlos Hernández',
+    phone: '0412-3456789',
+    id: 'V-12.345.678',
+    avatar: 'CH'
+  };
+
+  return (
+    <div className="p-4 sm:p-6 pb-20">
+      <div className="flex items-center mb-6">
+        <button
+          onClick={() => onNavigate('dashboard')}
+          className="mr-4 p-2 rounded-full hover:bg-muted transition-colors"
+        >
+          <ArrowDownLeft className="w-5 h-5 rotate-90" />
+        </button>
+        <h2 className="text-3xl font-bold text-foreground">Mi Perfil</h2>
+      </div>
+
+      <div className="bg-card p-6 rounded-xl shadow-card border mb-8 text-center">
+        <div className="relative inline-block mb-4">
+          <div className="w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center text-white text-4xl font-bold">
+            {user.avatar}
+          </div>
+        </div>
+        <h3 className="text-2xl font-bold text-card-foreground">{user.name}</h3>
+        <p className="text-muted-foreground">{user.phone}</p>
+        <p className="text-muted-foreground">{user.id}</p>
+      </div>
+
+      <div className="bg-card p-6 rounded-xl shadow-card border">
+        <h3 className="text-xl font-semibold text-card-foreground mb-4">Opciones</h3>
+        <div className="space-y-2">
+           <button className="w-full text-left p-4 rounded-lg hover:bg-muted transition-colors flex justify-between items-center">
+            <span>Editar Perfil</span>
+            <User className="w-5 h-5 text-muted-foreground" />
+          </button>
+           <button className="w-full text-left p-4 rounded-lg hover:bg-muted transition-colors flex justify-between items-center">
+            <span>Seguridad</span>
+            <Lock className="w-5 h-5 text-muted-foreground" />
+          </button>
+           <button className="w-full text-left p-4 rounded-lg hover:bg-muted transition-colors flex justify-between items-center">
+            <span>Notificaciones</span>
+            <Bell className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <button
+          onClick={onLogout}
+          className="w-full bg-destructive/10 text-destructive py-3 rounded-lg font-semibold hover:bg-destructive/20 transition-colors duration-200"
+        >
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Componente principal de la aplicación
 const COMPAGO = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -851,6 +922,11 @@ const COMPAGO = () => {
   const [balances, setBalances] = useState(mockBalances);
   const [transactions, setTransactions] = useState(mockTransactions);
   const [notification, setNotification] = useState(null);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentPage('dashboard'); // o 'login'
+  };
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -917,7 +993,7 @@ const COMPAGO = () => {
                 <Bell className="w-5 h-5" />
               </button>
               <button 
-                onClick={() => setIsLoggedIn(false)} 
+                onClick={handleLogout} 
                 className="p-2 rounded-full hover:bg-white/20 transition-colors text-sm font-medium"
               >
                 Salir
@@ -946,6 +1022,12 @@ const COMPAGO = () => {
                 onReceivePayment={handleReceivePayment}
               />
             )}
+            {currentPage === 'profile' && (
+              <ProfileScreen
+                onNavigate={setCurrentPage}
+                onLogout={handleLogout}
+              />
+            )}
             {currentPage === 'history' && (
               <TransactionHistoryScreen
                 onNavigate={setCurrentPage}
@@ -960,7 +1042,8 @@ const COMPAGO = () => {
               { id: 'dashboard', label: 'Inicio', icon: Home },
               { id: 'sendPayment', label: 'Enviar', icon: Send },
               { id: 'receivePayment', label: 'Recibir', icon: ArrowDownLeft },
-              { id: 'history', label: 'Historial', icon: History }
+              { id: 'history', label: 'Historial', icon: History },
+              { id: 'profile', label: 'Perfil', icon: User }
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
